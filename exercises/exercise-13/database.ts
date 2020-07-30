@@ -1,17 +1,9 @@
-type Query<T, P = keyof T> = { $text: string } | opt<number> | aggr<T>;
+type FieldQuery<FT> = { $eq: FT } | { $gt: FT } | { $lt: FT } | { $in: FT[] };
 
-type opts = '$lt' | '$gt' | '$eq';
-type opt<P> = {
-  [key in opts]: P;
-};
-
-type aggrKeys = '$and' | '$or' | '$in';
-type aggr<T> = {
-  [key in aggrKeys]: Array<
-    {
-      [key in keyof T]: opt<T[key]>;
-    }
-  >;
+type Query<T extends {}> = { [K in keyof T]?: FieldQuery<T[K]> } & {
+  $text?: string;
+  $and?: Query<T>[];
+  $or?: Query<T>[];
 };
 
 export class Database<T> {
